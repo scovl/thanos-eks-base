@@ -49,3 +49,8 @@ resource "aws_eks_cluster" "cluster" {
     aws_iam_role_policy_attachment.eks_cluster_policy
   ]
 }
+
+resource "aws_cloudwatch_log_group" "eks_logs" {
+  name              = "/eks/cluster/${var.environment}"
+  retention_in_days = 30 # Retain logs for 30 days
+}
