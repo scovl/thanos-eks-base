@@ -1,5 +1,6 @@
 module "k8s_metrics" {
   source                    = "./modules/eks"
+  environment               = var.environment
   cluster_name              = "eks_metrics_${var.environment}"
   eks_version               = "1.30" # Updated to the latest stable EKS version
   subnet_ids                = var.subnet_ids[var.environment]
@@ -17,7 +18,6 @@ locals {
   node_groups = {
     general = {
       instance_type = "m5.xlarge"
-      disk_size     = 100
       labels        = { workload = "general", environment = var.environment }
       desired_size  = 4
       min_size      = 3
@@ -25,7 +25,6 @@ locals {
     }
     thanos_query_shared = {
       instance_type = "m5.xlarge"
-      disk_size     = 150
       labels        = { workload = "thanos-query-shared", environment = var.environment }
       desired_size  = 6
       min_size      = 4
@@ -33,7 +32,6 @@ locals {
     }
     thanos_receive_shared_az_a = {
       instance_type = "m5.2xlarge"
-      disk_size     = 750
       labels        = { workload = "thanos-receive-shared", environment = var.environment }
       desired_size  = 10
       min_size      = 8
@@ -42,7 +40,6 @@ locals {
     }
     thanos_receive_shared_az_b = {
       instance_type = "m5.2xlarge"
-      disk_size     = 750
       labels        = { workload = "thanos-receive-shared", environment = var.environment }
       desired_size  = 10
       min_size      = 8
@@ -51,7 +48,6 @@ locals {
     }
     thanos_receive_shared_az_c = {
       instance_type = "m5.2xlarge"
-      disk_size     = 750
       labels        = { workload = "thanos-receive-shared", environment = var.environment }
       desired_size  = 10
       min_size      = 8
@@ -60,7 +56,6 @@ locals {
     }
     monitoring = {
       instance_type = "r5.2xlarge"
-      disk_size     = 500
       labels        = { workload = "monitoring", environment = var.environment }
       desired_size  = 3
       min_size      = 2
@@ -68,7 +63,6 @@ locals {
     }
     grafana = {
       instance_type = "t3a.large"
-      disk_size     = 50
       labels        = { workload = "grafana", environment = var.environment }
       desired_size  = 3
       min_size      = 2
@@ -84,11 +78,11 @@ module "k8s_metrics_node_groups" {
   cluster_name                 = module.k8s_metrics.cluster_name
   eks_version                  = "1.30"
   cluster_endpoint             = module.k8s_metrics.cluster_endpoint
-  cluster_certificate_autority = module.k8s_metrics.cluster_certificate_autority
+  cluster_certificate_authority = module.k8s_metrics.cluster_certificate_authority
   node_group_name              = each.key
   node_role_arn                = var.node_role_arn
   security_groups              = [aws_security_group.eks_cluster_metrics.id, module.k8s_metrics.cluster_security_group_id, aws_security_group.eks_node_metrics.id]
-  subnet_ids                   = try(var.subnet_ids_nodes[each.value.subnet_key], var.subnet_ids_nodes[var.environment]) # Support for specific AZs or fallback
+  subnet_ids                   = try(var.subnet_ids_nodes[each.value.subnet_key], var.subnet_ids_nodes[var.environment])
   instance_type                = each.value.instance_type
   disk_size                    = each.value.disk_size
   labels                       = each.value.labels
@@ -97,6 +91,10 @@ module "k8s_metrics_node_groups" {
   min_size                     = each.value.min_size
   max_size                     = each.value.max_size
   tags                         = merge(var.tags, { "NodeGroup" = each.key })
+
+  environment                  = var.environment
+  node_group_role              = "DefaultNodeGroupRole"
+  max_unavailable_percentage   = 20  # Passe o valor necessário para esta variável
 
   depends_on = [
     module.k8s_metrics,

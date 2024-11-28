@@ -37,17 +37,6 @@ resource "aws_eks_cluster" "cluster" {
   kubernetes_network_config {
     service_ipv4_cidr = var.service_ipv4_cidr # Allow flexibility in configuring the CIDR block for services
   }
-
-  # Adding default addons for a more secure cluster configuration
-  addons {
-    addon_name    = "vpc-cni"
-    addon_version = "latest"
-    resolve_conflicts = "OVERWRITE"
-  }
-
-  depends_on = [
-    aws_iam_role_policy_attachment.eks_cluster_policy
-  ]
 }
 
 resource "aws_cloudwatch_log_group" "eks_logs" {
@@ -55,8 +44,15 @@ resource "aws_cloudwatch_log_group" "eks_logs" {
   retention_in_days = 30 # Retain logs for 30 days
 }
 
+resource "aws_iam_role" "eks_cluster_role" {
+  name               = "${var.cluster_name}-eks-role"
+  assume_role_policy = data.aws_iam_policy_document.eks_assume_role_policy.json
+  description        = "Role used for EKS cluster ${var.cluster_name}"
+}
+
 resource "aws_iam_policy_attachment" "eks_logs_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+  name       = "${var.cluster_name}-logs-policy"  # Substitua pelo nome desejado
   roles      = [aws_iam_role.eks_cluster_role.name]
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }
 

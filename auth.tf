@@ -1,4 +1,4 @@
-resource "kubernetes_config_map" "aws-auth" {
+resource "kubernetes_config_map" "aws_auth" {
   provider = kubernetes.test # Substitua "test" pelo nome do alias que você definiu no main.tf
 
   metadata {

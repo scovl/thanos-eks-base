@@ -15,6 +15,7 @@ variable "cluster_name" {
 
 variable "eks_version" {
   type        = string
+  default     = "1.30"
   description = "Kubernetes version for the EKS cluster"
 }
 
@@ -126,3 +127,25 @@ variable "prevent_destroy" {
   description = "Prevent nodes from being destroyed by Terraform"
   default     = false
 }
+
+variable "environment" {
+  type        = string
+  description = "The environment for the resources, e.g., dev, staging, or prod."
+}
+
+variable "node_group_role" {
+  type        = string
+  description = "Role tag for clarity on the instance purpose."
+}
+
+variable "disk_size" {
+  type        = number
+  description = "The size of the disk for the node group instances."
+}
+
+variable "max_unavailable_percentage" {
+  type        = number
+  description = "The maximum percentage of nodes that can be unavailable during updates or scaling activities."
+  default     = 20
+}
+
