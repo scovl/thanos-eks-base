@@ -54,3 +54,9 @@ resource "aws_cloudwatch_log_group" "eks_logs" {
   name              = "/eks/cluster/${var.environment}"
   retention_in_days = 30 # Retain logs for 30 days
 }
+
+resource "aws_iam_policy_attachment" "eks_logs_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+  roles      = [aws_iam_role.eks_cluster_role.name]
+}
+
