@@ -19,6 +19,7 @@ resource "aws_eks_node_group" "node_group" {
 
   update_config {
     max_unavailable_percentage = var.max_unavailable_percentage
+    max_unavailable = 1
   }
 
   labels = var.labels
