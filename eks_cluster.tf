@@ -13,11 +13,11 @@ module "k8s_metrics" {
   tags                      = merge(var.tags, { "Environment" = var.environment }) # Add an environment tag for better traceability
 }
 
-# Centralized definition of node groups
 locals {
   node_groups = {
     general = {
       instance_type = "m5.xlarge"
+      disk_size     = 100
       labels        = { workload = "general", environment = var.environment }
       desired_size  = 4
       min_size      = 3
@@ -25,6 +25,7 @@ locals {
     }
     thanos_query_shared = {
       instance_type = "m5.xlarge"
+      disk_size     = 150
       labels        = { workload = "thanos-query-shared", environment = var.environment }
       desired_size  = 6
       min_size      = 4
@@ -32,6 +33,7 @@ locals {
     }
     thanos_receive_shared_az_a = {
       instance_type = "m5.2xlarge"
+      disk_size     = 750
       labels        = { workload = "thanos-receive-shared", environment = var.environment }
       desired_size  = 10
       min_size      = 8
@@ -40,6 +42,7 @@ locals {
     }
     thanos_receive_shared_az_b = {
       instance_type = "m5.2xlarge"
+      disk_size     = 750
       labels        = { workload = "thanos-receive-shared", environment = var.environment }
       desired_size  = 10
       min_size      = 8
@@ -48,6 +51,7 @@ locals {
     }
     thanos_receive_shared_az_c = {
       instance_type = "m5.2xlarge"
+      disk_size     = 750
       labels        = { workload = "thanos-receive-shared", environment = var.environment }
       desired_size  = 10
       min_size      = 8
@@ -56,6 +60,7 @@ locals {
     }
     monitoring = {
       instance_type = "r5.2xlarge"
+      disk_size     = 500
       labels        = { workload = "monitoring", environment = var.environment }
       desired_size  = 3
       min_size      = 2
@@ -63,6 +68,7 @@ locals {
     }
     grafana = {
       instance_type = "t3a.large"
+      disk_size     = 50
       labels        = { workload = "grafana", environment = var.environment }
       desired_size  = 3
       min_size      = 2
