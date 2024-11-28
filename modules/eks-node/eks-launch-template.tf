@@ -25,6 +25,7 @@ resource "aws_launch_template" "eks_node_group" {
       volume_size           = var.node_volume_size
       volume_type           = var.volume_type
       encrypted             = var.ebs_encrypted # Make encryption configurable
+      kms_key_id            = var.encryption_config_kms_arn
       delete_on_termination = true
     }
   }

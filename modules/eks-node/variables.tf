@@ -108,6 +108,13 @@ variable "ebs_encrypted" {
   default     = true
 }
 
+variable "encryption_config_kms_arn" {
+  type        = string
+  description = "KMS key ARN for encrypting EBS volumes and other resources"
+  default     = "arn:aws:kms:us-east-1:123456789012:key/your-kms-key-id"
+}
+
+
 variable "availability_zone" {
   type        = string
   description = "Availability zone for the instances"
