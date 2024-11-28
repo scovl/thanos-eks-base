@@ -1,0 +1,87 @@
+prometheus:
+  replicaCount: 1
+
+  retentionTime: 4h
+  tsdbBlockMax: 2h
+  tsdbBlockMin: 2h
+
+  clusterName: "metrics"
+  environment: "prod"
+  awsAccountID: "1234567890"
+
+  image:
+    repository: 1234567890.dkr.ecr.sa-east-1.amazonaws.com/metrics/prometheus
+    pullPolicy: IfNotPresent
+    tag: "v2.33.1"
+
+  nodeSelector:
+    enable: true
+    labels:
+      workload: monitoring 
+
+  cluster:
+    resources:
+      limits:
+        cpu: 3000m
+        memory: 1250Mi
+      requests:
+        cpu: 2000m
+        memory: 30Gi
+
+  remoteWrite:
+    enable: true
+    remoteUrl:
+      - url: ""
+        headers:
+          THANOS-TENANT: ""
+      - url: ""
+        headers:
+          THANOS-TENANT: "" 
+
+  scrapeConfig:
+    - job_name: prometheus
+      static_configs: 
+        - targets:
+            - localhost:9090
+
+    - job_name: 'istiod'
+      scrape_interval: 15s
+      scrape_timeout: 10s
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - istio-system
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: istiod;http-monitoring
+
+    - job_name: 'envoy-stats'
+      scrape_interval: 15s
+      scrape_timeout: 10s
+      metrics_path: /stats/prometheus
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_container_port_name]
+          action: keep
+          regex: '.*-envoy-prom'
+
+    - job_name: kubernetes-apiservers
+      scrape_interval: 15s
+      scrape_timeout: 10s
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      kubernetes_sd_configs:
+        - role: endpoints
+      relabel_configs:
+        - action: keep
+          source_labels:
+            - __meta_kubernetes_namespace
+            - __meta_kubernetes_service_name
+            - __meta_kubernetes_endpoint_port_name
+          regex: default;kubernetes;https
+      scheme: https
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        insecure_skip_verify: true
