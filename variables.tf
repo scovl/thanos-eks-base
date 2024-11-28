@@ -54,6 +54,13 @@ variable "vpc_id" {
   }
 }
 
+variable "allowed_cidr_blocks" {
+  type = list(string)
+  description = "List of CIDR blocks allowed for egress traffic"
+  default = ["10.0.0.0/16"] # Replace with your internal CIDR range
+}
+
+
 variable "public_access_cidrs" {
   type = list(string)
   default = [

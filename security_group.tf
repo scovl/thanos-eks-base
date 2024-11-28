@@ -13,7 +13,7 @@ resource "aws_security_group_rule" "cluster_egress_internet" {
   description       = "Allow egress for EKS cluster"
   protocol          = "-1"
   security_group_id = aws_security_group.eks_cluster_metrics.id
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = var.allowed_cidr_blocks
   from_port         = 0
   to_port           = 0
   type              = "egress"
@@ -73,7 +73,7 @@ resource "aws_security_group_rule" "workers_egress_internet" {
   description       = "Allow nodes egress to the Internet"
   protocol          = "-1"
   security_group_id = aws_security_group.eks_node_metrics.id
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = var.allowed_cidr_blocks
   from_port         = 0
   to_port           = 0
   type              = "egress"
